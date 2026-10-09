@@ -1,0 +1,92 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  publish:
+    environment: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Because GitHub & NPM can't figure out their shit
+      - name: Update NPM
+        run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun dev:build
+
+      - name: Publish library
+        run: npm publish --provenance
+
+      - name: Prepare release metadata
+        id: release
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          PREV_TAG=$(git tag --sort=-v:refname | grep -v "^${TAG}$" | head -n1)
+          echo "prev_tag=${PREV_TAG}" >> $GITHUB_OUTPUT
+
+          # Get commit message
+          COMMIT_MSG=$(git log -1 --format=%B)
+          COMMIT_TITLE=$(echo "$COMMIT_MSG" | head -n1)
+          COMMIT_BODY=$(echo "$COMMIT_MSG" | tail -n +3)
+
+          # Release title
+          # Written to a file (not $GITHUB_OUTPUT) so backticks in the user's
+          # title aren't lost when the title round-trips through GitHub
+          # Actions' output interpolation into the next step's `--title`.
+          echo "${TAG} - ${COMMIT_TITLE}" > release_title.txt
+
+          # Build release body
+          {
+            if [[ -n "$COMMIT_BODY" ]]; then
+              echo "$COMMIT_BODY"
+              echo ""
+            fi
+
+            if [[ -n "$PREV_TAG" ]]; then
+              echo "<details>"
+              echo "<summary>Commits since ${PREV_TAG}</summary>"
+              echo ""
+              for COMMIT in $(git log --format="%H" "${PREV_TAG}..${TAG}"); do
+                SUBJECT=$(git log -1 --format="%s" "$COMMIT")
+                AUTHOR=$(git log -1 --format="%an" "$COMMIT")
+                COAUTHORS=$(git log -1 --format="%(trailers:key=Co-authored-by,valueonly)" "$COMMIT" | sed -n 's/\(.*\) <.*/\1/p' | sed 's/^/, @/')
+                echo "- $COMMIT $SUBJECT (@${AUTHOR}${COAUTHORS})"
+              done
+              echo ""
+              echo "</details>"
+              echo ""
+              echo "**Full Changelog**: [${PREV_TAG}...${TAG}](https://github.com/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${TAG})"
+            fi
+          } > release_body.md
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "$(cat release_title.txt)" \
+            --notes-file release_body.md
