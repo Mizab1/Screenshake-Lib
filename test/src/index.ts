@@ -1,1 +1,1 @@
-import './test-display.ts'
+import "./testScreenshake.ts";
