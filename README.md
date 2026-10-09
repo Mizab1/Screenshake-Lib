@@ -6,7 +6,7 @@ _This library is built for [Sandstone](https://github.com/sandstone-mc/sandstone
 
 > **Note:** This library works with >=Release 1.0 of Sandstone.
 
-This library provides an easy-to-use `Screenshake` class for creating controllable view-angle shake effects on target entities and players in Minecraft.
+This library provides an easy-to-use `Screenshake` class for creating controllable view-angle shake effects on target players.
 
 ## Installation
 
@@ -87,30 +87,18 @@ explosionShake.start(Selector("@p"));
 ## Example Pack
 
 ```ts
-import { MCFunction, Objective, execute, Selector } from "sandstone";
-import { Screenshake } from "sandstone-screenshake";
+import { MCFunction } from "sandstone";
+import Screenshake from "sandstone-screenshake";
 
-// Initialize the screenshake preset
-const quakeShake = new Screenshake("earthquake", [2.5, 2.5], 60, 2);
+let quake1 = new Screenshake("quake1", [1.5, 1.5], 100, 1);
 
-// Scoreboard trigger for testing
-const triggerShake = Objective.create("trigger_shake", "dummy")("@s");
+MCFunction("start_quake_1", () => {
+  quake1.start("@a");
+});
 
-MCFunction(
-  "main",
-  () => {
-    execute
-      .as(Selector("@a", { scores: { [triggerShake.objective.name]: [1, null] } }))
-      .at("@s")
-      .run(() => {
-        triggerShake.set(0);
-
-        // Start screenshake for current player
-        quakeShake.start(Selector("@s"));
-      });
-  },
-  { runEveryTick: true }
-);
+MCFunction("stop_quake_1", () => {
+  quake1.stop();
+});
 ```
 
 > **Note:** Screenshakes run via relative teleports anchored to target entities. Ensure target selectors are valid at the time `.start()` executes.
