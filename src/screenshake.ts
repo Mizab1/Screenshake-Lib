@@ -34,17 +34,6 @@ class Screenshake {
 
     this.privateObjective = Objective.create("private", "dummy");
     this.latch = this.privateObjective(`latch_${this.id}`);
-
-    this.entryPoint = MCFunction(`screenshake/shake_${this.id}`, () => {
-      for (let i = 0; i < Math.floor(this.duration / this.delay); i++) {
-        // Check if the stop() is called and stop the screenshake
-        _.if(this.latch!.matches([1, null])).return(1);
-
-        // Else keep running the screenshake
-        this.rotate();
-        _.await.sleep(`${this.delay}t`);
-      }
-    });
   }
 
   // Method to actually shake the screen of the give selector by thr given intensity
@@ -66,6 +55,20 @@ class Screenshake {
   start(selector: MultipleEntitiesArgument<false>) {
     this.latch!.set(0);
     this.selector = selector;
+    this.entryPoint = MCFunction(
+      `screenshake/shake_${this.id}`,
+      () => {
+        for (let i = 0; i < Math.floor(this.duration / this.delay); i++) {
+          // Check if the stop() is called and stop the screenshake
+          _.if(this.latch!.matches([1, null])).return(1);
+
+          // Else keep running the screenshake
+          this.rotate();
+          _.await.sleep(`${this.delay}t`);
+        }
+      },
+      { onConflict: "ignore" }
+    );
     this.entryPoint!();
   }
 
