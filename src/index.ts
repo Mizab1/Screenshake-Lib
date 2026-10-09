@@ -1,4 +1,4 @@
-// Import your pack code files here
-import "./caller.ts";
+import Screenshake from "./screenshake";
+export default Screenshake;
 
 // The CLI handles pack creation - just import your files
