@@ -1,6 +1,6 @@
 {
   "name": "sandstone-screenshake",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A library to simplify the creation of screen shake effect.",
   "type": "module",
   "module": "./lib/index.js",
