@@ -1,11 +1,15 @@
 {
   "name": "sandstone-screenshake",
   "version": "0.0.1",
-  "description": "A library created with Sandstone",
+  "description": "A library to simplify the creation of screen shake effect.",
   "type": "module",
   "module": "./lib/index.js",
   "exports": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mizab1/Screenshake-Lib.git"
+  },
   "workspaces": [
     "./",
     "test"
@@ -18,8 +22,13 @@
     "dev:watch": "sand watch --library",
     "prepublishOnly": "bun dev:build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "minecraft",
+    "sandstone",
+    "sandstone-library",
+    "screenshake"
+  ],
+  "author": "Mizab",
   "license": "MIT",
   "devDependencies": {
     "sandstone-cli": "^2.6.9",
