@@ -1,8 +1,12 @@
 import { _, execute, MCFunction, MCFunctionClass, Objective, ObjectiveClass, rel, Score } from "sandstone";
 import { MultipleEntitiesArgument } from "sandstone/arguments";
+import { createHash } from "crypto";
 
 function randomFloatFromInterval(min: number, max: number): number {
   return parseFloat(((1 - Math.random()) * (max - min) + min).toFixed(2));
+}
+function generateHash(text: string): string {
+  return createHash("sha256").update(text).digest("hex").substring(0, 7);
 }
 
 class Screenshake {
@@ -12,7 +16,6 @@ class Screenshake {
   private duration: number;
   private delay: number;
   private entryPoint: MCFunctionClass | undefined;
-  private selector: MultipleEntitiesArgument<false> | undefined;
   private privateObjective: ObjectiveClass;
   private latch: Score | undefined;
 
@@ -37,10 +40,9 @@ class Screenshake {
   }
 
   // Method to actually shake the screen of the give selector by thr given intensity
-  private rotate() {
-    if (!this.selector) return;
+  private rotate(selector: MultipleEntitiesArgument<false>) {
     execute
-      .as(this.selector)
+      .as(selector)
       .at("@s")
       .run.teleport(
         "@s",
@@ -54,16 +56,17 @@ class Screenshake {
 
   start(selector: MultipleEntitiesArgument<false>) {
     this.latch!.set(0);
-    this.selector = selector;
+    let hash = generateHash(selector.toString());
+
     this.entryPoint = MCFunction(
-      `screenshake/shake_${this.id}`,
+      `screenshake/shake_${this.id}/variant_${hash}`,
       () => {
         for (let i = 0; i < Math.floor(this.duration / this.delay); i++) {
           // Check if the stop() is called and stop the screenshake
           _.if(this.latch!.matches([1, null])).return(1);
 
           // Else keep running the screenshake
-          this.rotate();
+          this.rotate(selector);
           _.await.sleep(`${this.delay}t`);
         }
       },
