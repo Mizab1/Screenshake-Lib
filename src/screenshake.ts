@@ -54,6 +54,11 @@ class Screenshake {
       );
   }
 
+  /**
+   * Start the shaking effect on the `selector`.
+   *
+   * @param selector Selector of the target player(s).
+   */
   start(selector: MultipleEntitiesArgument<false>) {
     this.latch!.set(0);
     let hash = generateHash(selector.toString());
@@ -75,6 +80,9 @@ class Screenshake {
     this.entryPoint!();
   }
 
+  /**
+   * Abruptly stop the effect tied to the instance.
+   */
   stop() {
     this.latch!.set(1);
   }
