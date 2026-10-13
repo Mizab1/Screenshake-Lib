@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "setup": "bun link && bun i",
-    "dev:test-build": "cd test && bun dev:test-build",
+    "dev:test-build": "cd test && bun dev:build",
     "dev:compile": "bun build --outfile=lib/index.js --packages=external src/index.ts",
     "dev:build": "bun dev:compile && bun tsc",
     "dev:watch": "sand watch --library",
