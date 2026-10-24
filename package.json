@@ -11,7 +11,6 @@
     "url": "https://github.com/Mizab1/Screenshake-Lib.git"
   },
   "workspaces": [
-    "./",
     "test"
   ],
   "scripts": {
