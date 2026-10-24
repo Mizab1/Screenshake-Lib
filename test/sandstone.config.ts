@@ -18,5 +18,5 @@ export default {
   namespace: "sandstone_screenshake_test",
   packUid: "41V9rY0w",
   mcmeta: "latest",
-  saveOptions: { clientPath: "C:\\Users\\mizab\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 1.21.11", world: "Screen Shake" }
+  saveOptions: { clientPath: "C:\\Users\\mizab\\AppData\\Roaming\\ModrinthApp\\profiles\\Fabric 1.21.5", world: "Raycast" }
 } as SandstoneConfig;
